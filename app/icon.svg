@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#172470"/>
+      <stop offset="1" stop-color="#070d2b"/>
+    </linearGradient>
+    <radialGradient id="wax" cx="0.35" cy="0.3" r="0.9">
+      <stop offset="0" stop-color="#fbeab0"/>
+      <stop offset="0.45" stop-color="#d9b053"/>
+      <stop offset="1" stop-color="#8f6b22"/>
+    </radialGradient>
+    <radialGradient id="inner" cx="0.65" cy="0.7" r="0.9">
+      <stop offset="0" stop-color="#f4d98a"/>
+      <stop offset="1" stop-color="#b88a30"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#bg)"/>
+  <path d="M59.72 28.97Q60.85 32.00 60.59 35.23Q60.32 38.46 58.12 40.99Q55.92 43.52 55.76 47.17Q55.59 50.81 53.23 53.23Q50.86 55.65 47.47 56.37Q44.08 57.09 41.33 58.96Q38.58 60.83 35.29 60.06Q32.00 59.29 28.86 59.40Q25.72 59.50 22.06 59.87Q18.40 60.24 16.40 57.15Q14.40 54.06 12.00 51.96Q9.60 49.87 7.83 47.18Q6.07 44.49 5.90 41.24Q5.73 37.99 3.49 35.00Q1.25 32.00 2.06 28.68Q2.87 25.35 5.03 22.70Q7.19 20.05 8.10 16.86Q9.01 13.67 11.98 12.15Q14.95 10.62 17.21 8.29Q19.46 5.96 22.25 3.72Q25.03 1.47 28.52 2.89Q32.00 4.31 35.18 4.24Q38.35 4.17 41.40 5.16Q44.45 6.14 46.78 8.35Q49.11 10.55 52.73 11.56Q56.35 12.58 57.38 15.93Q58.41 19.28 58.50 22.61Q58.58 25.93 59.72 28.97Z" fill="url(#wax)"/>
+  <circle cx="32" cy="32" r="20.5" fill="url(#inner)" stroke="#8f6b22" stroke-width="1"/>
+  <circle cx="32" cy="32" r="18" fill="none" stroke="#fff0b8" stroke-opacity="0.6" stroke-width="0.6" stroke-dasharray="1 2"/>
+  <text x="32" y="37.4" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="14" fill="#fff0b8" transform="translate(-0.5 -0.6)">A&amp;M</text>
+  <text x="32" y="37.4" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="14" fill="#5c3f08">A&amp;M</text>
+</svg>
