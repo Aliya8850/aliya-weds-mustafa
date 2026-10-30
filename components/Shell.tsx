@@ -158,7 +158,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       )}
       {children}
-      <audio ref={audioRef} src="/music.m4a" loop preload="none" />
+      <audio ref={audioRef} src="/audio-music.mp3" loop preload="none" />
       {open && (
         <button
           type="button"
