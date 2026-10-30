@@ -11,7 +11,7 @@ export default function Reveal({
 }: {
   children: ReactNode;
   delay?: number;
-  from?: "up" | "left" | "right" | "zoom";
+  from?: "up" | "left" | "right" | "zoom" | "none";
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);

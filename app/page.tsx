@@ -4,9 +4,8 @@ import { variants } from "@/lib/invite";
 // Link hub for the family: pick the invitation that matches each guest list.
 export default function Home() {
   return (
-    <main className="relative mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center px-5 py-16 text-center">
-      <div className="lattice" aria-hidden />
-      <div className="relative z-10">
+    <main className="sec sec-dark mx-auto flex min-h-dvh max-w-none flex-col items-center justify-center px-5 py-16 text-center">
+      <div className="relative z-10 mx-auto max-w-3xl">
         <p className="font-arabic gold-text text-4xl" dir="rtl" lang="ar">
           بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
         </p>
@@ -18,10 +17,7 @@ export default function Home() {
         <ul className="mt-10 grid gap-4 text-left sm:grid-cols-2">
           {Object.values(variants).map((v) => (
             <li key={v.slug}>
-              <Link
-                href={`/${v.slug}`}
-                className="event-card gold-border block h-full rounded-2xl p-6"
-              >
+              <Link href={`/${v.slug}`} className="hub-card">
                 <h2 className="font-display gold-text text-lg uppercase tracking-[0.15em]">
                   {v.label}
                 </h2>

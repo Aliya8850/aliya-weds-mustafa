@@ -53,7 +53,7 @@ export const events: Record<EventId, InviteEvent> = {
     timeLabel: "8:00 PM onwards",
     venue: {
       name: "Lotus Colony",
-      address: "Plot No 9, Room No 519, Near Sanjari English School, Govandi, Mumbai 400043",
+      address: "Plot No 9, Room No 518, Near Sanjari English School, Govandi, Mumbai 400043",
     },
   },
   nikah: {

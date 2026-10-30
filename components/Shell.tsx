@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import GuestName from "./GuestName";
 import { Sprig } from "./Ornaments";
 import Particles from "./Particles";
@@ -59,10 +59,43 @@ function WaxSeal() {
 export default function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [gone, setGone] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const startMusic = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.volume = 0;
+    a.play()
+      .then(() => {
+        setPlaying(true);
+        // fade in (iOS ignores volume and simply plays at device volume)
+        const id = window.setInterval(() => {
+          a.volume = Math.min(0.7, a.volume + 0.05);
+          if (a.volume >= 0.7) window.clearInterval(id);
+        }, 120);
+      })
+      .catch(() => {
+        // autoplay blocked or file unavailable — the toggle button stays available
+      });
+  };
+
+  const toggleMusic = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) {
+      a.volume = 0.7;
+      a.play().then(() => setPlaying(true)).catch(() => {});
+    } else {
+      a.pause();
+      setPlaying(false);
+    }
+  };
 
   const openGate = () => {
     if (open) return;
     setOpen(true);
+    startMusic();
     window.setTimeout(() => window.dispatchEvent(new Event("invite:burst")), 700);
     window.setTimeout(() => setGone(true), 2700);
   };
@@ -81,25 +114,20 @@ export default function Shell({ children }: { children: ReactNode }) {
               <svg viewBox="0 0 100 60" preserveAspectRatio="none">
                 <polygon
                   points="0,0 100,0 50,60"
-                  fill="#111c4d"
-                  stroke="#c9a24b"
+                  fill="#3d0c1e"
+                  stroke="#d6b26a"
                   strokeWidth="1.5"
                   vectorEffect="non-scaling-stroke"
                 />
                 <polygon
                   points="6,0 94,0 50,53"
                   fill="none"
-                  stroke="#c9a24b"
+                  stroke="#d6b26a"
                   strokeOpacity="0.4"
                   strokeWidth="1"
                   vectorEffect="non-scaling-stroke"
                 />
               </svg>
-              <div className="flap-text">
-                <p className="font-arabic gold-text text-2xl leading-[1.8] sm:text-3xl" dir="rtl" lang="ar">
-                  بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
-                </p>
-              </div>
             </div>
 
             <button
@@ -115,10 +143,10 @@ export default function Shell({ children }: { children: ReactNode }) {
               <p className="font-display text-[0.65rem] uppercase tracking-[0.4em] text-gold-light">
                 The wedding of
               </p>
-              <p className="font-script gold-text mt-3 text-[clamp(2.4rem,10vw,3.6rem)] leading-tight">
+              <p className="font-script gold-text mt-3 text-[clamp(2.4rem,10vw,3.6rem)] leading-tight lg:text-6xl">
                 Aliya &amp; Mustafa
               </p>
-              <p className="font-display mx-auto mt-4 max-w-[18rem] text-[0.6rem] uppercase leading-relaxed tracking-[0.3em] text-ivory/80">
+              <p className="env-tag font-display mx-auto mt-4 max-w-[18rem] text-[0.6rem] uppercase leading-relaxed tracking-[0.3em] text-ivory/80 lg:max-w-none">
                 Two souls. One journey. A lifetime together.
               </p>
               <GuestName className="font-script mt-5 text-2xl text-gold-light" />
@@ -130,6 +158,38 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       )}
       {children}
+      <audio ref={audioRef} src="/music.m4a" loop preload="none" />
+      {open && (
+        <button
+          type="button"
+          onClick={toggleMusic}
+          className="music-btn"
+          aria-label={playing ? "Mute music" : "Play music"}
+          title={playing ? "Mute music" : "Play music"}
+          aria-pressed={playing}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor" fillOpacity="0.2" />
+            {playing ? (
+              <>
+                <path d="M15.5 9a4 4 0 0 1 0 6" />
+                <path d="M18 6.5a7.5 7.5 0 0 1 0 11" />
+              </>
+            ) : (
+              <path d="M16 9.5l5 5M21 9.5l-5 5" />
+            )}
+          </svg>
+        </button>
+      )}
       <Particles />
     </div>
   );

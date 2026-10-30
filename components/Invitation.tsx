@@ -1,27 +1,31 @@
 import type { CSSProperties } from "react";
-import { couple, events, mapsUrl, type Variant } from "@/lib/invite";
+import { couple, events, mapsUrl, type EventId, type Variant } from "@/lib/invite";
 import AddToCalendar from "./AddToCalendar";
+import Chrome from "./Chrome";
 import Countdown from "./Countdown";
 import GuestName from "./GuestName";
-import { Crescent, Divider, EventIcon, Lantern, Letters, Sprig, Stars, SvgDefs } from "./Ornaments";
+import HeroStage from "./HeroStage";
+import { Divider, Letters, RiseText, SvgDefs } from "./Ornaments";
 import Reveal from "./Reveal";
+import ScrollText from "./ScrollText";
 import Shell from "./Shell";
 
 const delay = (s: number) => ({ "--delay": `${s}s` }) as CSSProperties;
 
-const gridCols: Record<number, string> = {
-  1: "max-w-md",
-  2: "max-w-4xl md:grid-cols-2",
-  3: "max-w-6xl md:grid-cols-3",
+const themeClass: Record<EventId, string> = {
+  haldi: "ev-haldi",
+  nikah: "ev-nikah",
+  reception: "ev-reception",
 };
+
+/** "2026-12-02T19:00:00+05:30" -> ["02", "12", "2026"] */
+const dmy = (iso: string) => [iso.slice(8, 10), iso.slice(5, 7), iso.slice(0, 4)];
 
 export default function Invitation({ variant }: { variant: Variant }) {
   const list = variant.events.map((id) => events[id]);
-  const confirmed = list.filter((e) => !e.tentative);
-  const countdownTargets = confirmed.map((e) => ({ id: e.id, title: e.title, start: e.start }));
-
   const first = list[0];
   const last = list[list.length - 1];
+
   const dateLine =
     list.length > 1
       ? first.month === last.month
@@ -29,239 +33,260 @@ export default function Invitation({ variant }: { variant: Variant }) {
         : `${Number(first.day)} ${first.month.slice(0, 3)} – ${Number(last.day)} ${last.month.slice(0, 3)} ${last.year}`
       : `${first.weekday}, ${Number(first.day)} ${first.month} ${first.year}`;
 
+  const [d1, m1, y1] = dmy(first.start);
+  const [d2, m2] = dmy(last.start);
+  const shortDate = list.length > 1 ? `${d1}.${m1} — ${d2}.${m2}.${y1}` : `${d1}.${m1}.${y1}`;
+
+
+  const countdownTargets = list
+    .filter((e) => !e.tentative)
+    .map((e) => ({
+      id: e.id,
+      title: e.title,
+      start: e.start,
+      when: `${e.weekday}, ${Number(e.day)} ${e.month} ${e.year} · ${e.timeLabel}`,
+    }));
+
   return (
     <Shell>
       <SvgDefs />
+      <Chrome />
 
-      {/* ───────── Hero (navy) ───────── */}
-      <section className="sec sec-dark flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 pb-32 pt-20 text-center">
-        <div className="hero-glow" aria-hidden />
-        <Stars />
-        <Sprig className="pointer-events-none absolute bottom-16 left-2 w-24 -scale-y-100 opacity-70 sm:w-40" />
-        <Sprig className="pointer-events-none absolute bottom-16 right-2 w-24 rotate-180 opacity-70 sm:w-40" />
+      {/* ───────── Hero ───────── */}
+      <HeroStage>
+        <div className="hero-lit" aria-hidden />
+        <div className="hero-torch" aria-hidden />
 
-        <Lantern className="left-[5%]" length={36} />
-        <Lantern className="left-[15%] hidden sm:block" delay={0.9} length={96} />
-        <Lantern className="right-[5%]" delay={0.5} length={60} />
-        <Lantern className="right-[15%] hidden sm:block" delay={1.4} length={120} />
-
-        <div className="arch hero-anim fade-up relative" style={delay(0.1)}>
-          <Crescent className="mx-auto h-16 w-16 sm:h-20 sm:w-20" />
-
-          <GuestName className="hero-anim fade-up font-script mt-3 text-2xl text-gold-light" />
-
-          <div
-            className="hero-anim fade-up mt-6 flex items-center justify-center gap-3"
-            style={delay(0.5)}
+        <div className="hero-inner">
+          <header
+            className="hero-anim fade-up flex items-start justify-between gap-4 text-[0.62rem] uppercase tracking-[0.35em] text-gold-light sm:text-xs"
+            style={delay(0.2)}
           >
-            <span className="h-px w-8 bg-gold/70" />
-            <p className="font-display text-[0.65rem] uppercase tracking-[0.4em] text-gold-light sm:text-xs">
-              Wedding Invitation
-            </p>
-            <span className="h-px w-8 bg-gold/70" />
+            <span className="font-display">The wedding of</span>
+            <span className="font-display">{shortDate}</span>
+          </header>
+
+          <div className="mx-auto w-full max-w-6xl">
+            <GuestName className="hero-anim fade-up font-script mb-5 text-2xl text-gold-light sm:text-3xl" />
+
+            <div className="flex items-start gap-6 sm:gap-14">
+              <div className="depth-a">
+                <span className="name">
+                  <Letters text="Aliya" />
+                </span>
+                <span className="sur hero-anim fade-up" style={delay(1.4)}>
+                  Khan
+                </span>
+              </div>
+              <div
+                className="with-aside hero-anim fade-up flex min-w-0 flex-1 items-center gap-3 text-gold sm:gap-5"
+                style={delay(1.6)}
+              >
+                <span className="font-script text-2xl leading-none sm:text-5xl">with</span>
+                <span className="h-px max-w-[16rem] flex-1 bg-linear-to-r from-gold/80 to-transparent" />
+              </div>
+            </div>
+
+            <div className="depth-b mt-4 text-right sm:mt-0">
+              <span className="name">
+                <Letters text="Mustafa" offset={8} />
+              </span>
+              <span className="sur hero-anim fade-up" style={delay(2.5)}>
+                Shaikh
+              </span>
+            </div>
           </div>
 
-          <h1 className="font-script mt-5 leading-[1.05]">
-            <span className="block text-[clamp(3.6rem,15vw,6.4rem)]">
-              <Letters text="Aliya" />
-            </span>
-            <span
-              className="hero-anim fade-up font-display mt-1 block text-sm uppercase tracking-[0.55em] text-gold-light"
-              style={delay(1.5)}
-            >
-              Khan
-            </span>
-            <span
-              className="hero-anim fade-up font-script gold-text my-2 block text-5xl"
-              style={delay(1.7)}
-            >
-              &amp;
-            </span>
-            <span className="block text-[clamp(3.6rem,15vw,6.4rem)]">
-              <Letters text="Mustafa" offset={8} />
-            </span>
-            <span
-              className="hero-anim fade-up font-display mt-1 block text-sm uppercase tracking-[0.55em] text-gold-light"
-              style={delay(2.6)}
-            >
-              Shaikh
-            </span>
-          </h1>
-
-          <div className="hero-anim fade-up mt-9" style={delay(3)}>
-            <p className="date-pill font-display text-sm uppercase tracking-[0.22em] text-gold-light sm:text-base">
-              {dateLine}
-            </p>
-          </div>
-          <p className="hero-anim fade-up mt-4 text-lg italic text-ivory/80" style={delay(3.3)}>
-            Mumbai, India · Inshallah
-          </p>
+          <footer className="hero-anim fade-up flex items-end justify-between gap-4" style={delay(2.9)}>
+            <div>
+              <p className="font-display text-xs uppercase tracking-[0.25em] text-gold-light sm:text-sm">
+                {dateLine}
+              </p>
+              <p className="mt-1 text-base italic text-ivory/75 sm:text-lg">Mumbai, India · Inshallah</p>
+            </div>
+            <a href="#invite" className="flex flex-col items-center gap-2 text-gold" aria-label="Scroll down">
+              <span className="font-display text-[0.6rem] uppercase tracking-[0.4em] [writing-mode:vertical-rl]">
+                Scroll
+              </span>
+              <span className="cue" />
+            </a>
+          </footer>
         </div>
+      </HeroStage>
 
-        <a
-          href="#invite"
-          className="scroll-cue absolute bottom-16 flex flex-col items-center gap-1 text-gold"
-          aria-label="Scroll down"
-        >
-          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M6 9l6 6 6-6" />
-          </svg>
-        </a>
-      </section>
+      {/* ───────── Invitation message (ivory) ───────── */}
+      <section id="invite" className="sec sec-light curve overflow-hidden px-4 pb-32 pt-28 text-center">
+        <div className="orb left-[-8rem] top-[8%]" aria-hidden />
+        <div className="orb blush right-[-10rem] top-[48%]" aria-hidden />
 
-      {/* ───────── Invitation message (cream) ───────── */}
-      <section id="invite" className="sec sec-light curve px-4 pb-20 pt-20 text-center">
         <div className="mx-auto max-w-4xl px-2 sm:px-8">
-          <Reveal>
-            <p className="font-arabic text-4xl leading-[1.8] text-gold-deep sm:text-5xl" dir="rtl" lang="ar">
+          <Reveal from="zoom">
+            <p
+              className="font-arabic glow-pulse text-5xl leading-[1.9] text-gold-deep sm:text-6xl"
+              dir="rtl"
+              lang="ar"
+            >
               بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
             </p>
-            <p className="mx-auto mt-1 max-w-2xl text-balance text-xl italic leading-relaxed text-ink/90 sm:text-2xl">
-              {couple.blessing}
-            </p>
           </Reveal>
 
-          <Divider className="my-6" />
+          <ScrollText
+            text={couple.blessing}
+            className="font-script mx-auto mt-8 max-w-3xl text-balance text-[1.8rem] leading-snug text-wine sm:text-[2.6rem] sm:leading-snug"
+          />
 
-          <Reveal delay={150}>
-            <p className="font-display text-xs uppercase tracking-[0.4em] text-gold-deep">
+          <Divider className="my-16" />
+
+          <Reveal from="none">
+            <p className="font-display text-xs uppercase tracking-[0.45em] text-gold-deep">
               With the blessings of Allah
             </p>
-            <p className="font-display mt-3 text-lg font-bold uppercase leading-snug tracking-[0.14em] text-burgundy sm:text-xl">
-              Mr. Late Salim Khalil Khan
-            </p>
-            <p className="font-script my-1 text-2xl text-gold-deep">&amp;</p>
-            <p className="font-display text-lg font-bold uppercase leading-snug tracking-[0.14em] text-burgundy sm:text-xl">
-              Mrs. Zohra Bi Salim Khan
-            </p>
-            <p className="mx-auto mt-4 max-w-2xl text-balance text-lg leading-relaxed text-ink/90 sm:text-xl">
+          </Reveal>
+
+          <div className="mt-8 space-y-3">
+            <Reveal from="left">
+              <p className="font-display text-base font-bold uppercase leading-snug tracking-[0.1em] text-wine sm:text-xl sm:tracking-[0.14em]">
+                Mr. Late Salim Khalil Khan
+              </p>
+            </Reveal>
+            <Reveal from="zoom" delay={150}>
+              <p className="font-script text-4xl leading-none text-gold-deep">&amp;</p>
+            </Reveal>
+            <Reveal from="right" delay={250}>
+              <p className="font-display text-base font-bold uppercase leading-snug tracking-[0.1em] text-wine sm:text-xl sm:tracking-[0.14em]">
+                Mrs. Zohra Bi Salim Khan
+              </p>
+            </Reveal>
+          </div>
+
+          <Reveal delay={150}>
+            <p className="mx-auto mt-10 max-w-2xl text-balance text-xl leading-relaxed text-ink/90 sm:text-2xl">
               solicit your blessing and request your gracious presence on the auspicious occasion of{" "}
-              <strong className="font-bold text-burgundy">{variant.occasion}</strong> of their
-              Daughter
+              <strong className="font-bold text-wine">{variant.occasion}</strong> of their Daughter
             </p>
           </Reveal>
 
-          <Reveal delay={300} className="mt-7">
-            <p className="font-script text-[clamp(2.8rem,10vw,4.2rem)] leading-tight text-navy">
-              {couple.bride.full}
-            </p>
-            <div className="my-1 flex items-center justify-center gap-4" aria-hidden>
-              <span className="h-px w-14 bg-gradient-to-r from-transparent to-gold sm:w-24" />
-              <span className="font-display text-xs uppercase tracking-[0.5em] text-gold-deep">with</span>
-              <span className="h-px w-14 bg-gradient-to-l from-transparent to-gold sm:w-24" />
-            </div>
-            <p className="font-script text-[clamp(2.8rem,10vw,4.2rem)] leading-tight text-navy">
-              {couple.groom.full}
-            </p>
-            <p className="mt-3 text-lg italic text-ink/85 sm:text-xl">S/o {couple.groomParents}</p>
-          </Reveal>
+          <div className="mt-20">
+            <Reveal from="none">
+              <p className="font-script text-[clamp(2.4rem,10.5vw,6rem)] leading-[1.15] text-wine">
+                <RiseText text={couple.bride.full} />
+              </p>
+
+              <div className="my-5 flex items-center justify-center gap-5" aria-hidden>
+                <span className="grow-line h-px w-20 origin-right bg-linear-to-r from-transparent to-gold sm:w-36" />
+                <span className="font-display text-xs uppercase tracking-[0.55em] text-gold-deep">with</span>
+                <span className="grow-line h-px w-20 origin-left bg-linear-to-l from-transparent to-gold sm:w-36" />
+              </div>
+
+              <p className="font-script text-[clamp(2.4rem,10.5vw,6rem)] leading-[1.15] text-wine">
+                <RiseText text={couple.groom.full} offset={12} />
+              </p>
+            </Reveal>
+
+            <Reveal delay={400} className="mt-8">
+              <p className="mx-auto max-w-xl text-balance text-xl italic text-ink/85 sm:text-2xl">S/o {couple.groomParents}</p>
+            </Reveal>
+          </div>
         </div>
       </section>
 
-      {/* ───────── Countdown (navy) ───────── */}
+      {/* ───────── Countdown (maroon) ───────── */}
       {countdownTargets.length > 0 && (
-        <section id="countdown" className="sec sec-dark curve px-5 pb-28 pt-24">
+        <section id="countdown" className="sec sec-dark curve px-5 pb-24 pt-24">
           <Reveal>
             <Countdown targets={countdownTargets} />
           </Reveal>
         </section>
       )}
 
-      {/* ───────── Events (cream) ───────── */}
-      <section id="events" className="sec sec-light curve px-5 pb-28 pt-24">
-        <Reveal className="mb-20 text-center">
-          <p className="font-display text-xs uppercase tracking-[0.5em] text-gold-deep">
-            Save the date
-          </p>
-          <h2 className="font-script mt-3 text-5xl text-navy sm:text-6xl">
+      {/* ───────── Events (ivory, stacking cards) ───────── */}
+      <section id="events" className="sec sec-light curve px-4 pb-24 pt-24">
+        <Reveal className="mb-14 text-center">
+          <p className="font-display text-xs uppercase tracking-[0.5em] text-gold-deep">Save the date</p>
+          <h2 className="font-script mt-3 text-5xl text-wine sm:text-7xl">
             {list.length > 1 ? "The Celebrations" : `The ${first.title}`}
           </h2>
           <Divider className="mt-6" />
         </Reveal>
 
-        <div className={`mx-auto grid gap-x-8 gap-y-20 ${gridCols[list.length]}`}>
+        <div className="mx-auto max-w-5xl">
           {list.map((e, i) => {
             const map = mapsUrl(e);
             return (
-              <Reveal key={e.id} delay={i * 150} className="h-full">
-                <article
-                  className={`card-light px-6 pb-9 text-center ${e.tentative ? "tentative" : ""}`}
-                >
-                  <div className="badge-arch">
-                    <EventIcon id={e.id} />
-                  </div>
-                  <h3 className="font-display text-xl font-semibold uppercase tracking-[0.18em] text-navy">
-                    {e.title}
-                  </h3>
-                  <p className="mt-2 text-lg italic text-ink/85">{e.tagline}</p>
-
-                  <p className="font-display mt-6 text-sm font-semibold uppercase tracking-[0.3em] text-gold-deep">
-                    {e.weekday}
-                  </p>
-                  <p className="font-script text-7xl leading-none text-burgundy">{e.day}</p>
-                  <p className="font-display mt-1 text-base font-semibold uppercase tracking-[0.25em] text-navy">
-                    {e.month} {e.year}
-                  </p>
-                  <p className="mt-2 text-lg italic text-ink/80">{e.hijri}</p>
-
-                  <div className="mx-auto my-6 h-px w-20 bg-gradient-to-r from-transparent via-gold to-transparent" />
-
-                  <p className="font-display text-lg font-semibold tracking-[0.1em] text-navy">{e.timeLabel}</p>
-                  {e.venue && (
-                    <p className="mt-4">
-                      <span className="font-display block text-lg font-bold tracking-[0.1em] text-burgundy">
-                        {e.venue.name}
-                      </span>
-                      <span className="mt-1 block text-lg font-medium leading-snug text-ink/90">{e.venue.address}</span>
-                    </p>
-                  )}
-                  {e.note && <p className="mt-4 text-lg italic text-ink/85">{e.note}</p>}
-
-                  {map && e.venue && (
-                    <div className="mt-7 flex flex-wrap justify-center gap-3">
-                      <a href={map} target="_blank" rel="noopener noreferrer" className="btn-navy">
-                        View on map
-                      </a>
-                      <AddToCalendar
-                        id={e.id}
-                        title={e.title}
-                        start={e.start}
-                        end={e.end}
-                        location={`${e.venue.name}, ${e.venue.address}`}
-                        className="btn-line"
-                      />
+              <article
+                key={e.id}
+                className={`ev ${themeClass[e.id]}`}
+                style={{ "--i": i } as CSSProperties}
+              >
+                <div className="ev-grid">
+                  <div className="ev-date">
+                    <p className="ev-day">{e.day}</p>
+                    <div className="ev-meta">
+                      <p className="font-display text-sm font-semibold uppercase tracking-[0.25em] sm:text-base">
+                        {e.month} {e.year}
+                      </p>
+                      <p className="font-display mt-1 text-xs uppercase tracking-[0.35em] opacity-80">
+                        {e.weekday}
+                      </p>
+                      <p className="ev-text mt-2 text-sm italic opacity-90 sm:text-base">{e.hijri}</p>
                     </div>
-                  )}
-                </article>
-              </Reveal>
+                  </div>
+
+                  <Reveal delay={100}>
+                    <h3 className="ev-title">{e.title}</h3>
+                    <p className="ev-text mt-2 text-base italic opacity-90 sm:text-lg">{e.tagline}</p>
+
+                    <div className="ev-rule my-5" />
+
+                    <p className="font-display text-lg font-semibold tracking-[0.1em]">{e.timeLabel}</p>
+                    {e.venue && (
+                      <p className="mt-3">
+                        <span className="font-display block text-lg font-bold tracking-[0.08em]">
+                          {e.venue.name}
+                        </span>
+                        <span className="ev-text mt-2 block text-base sm:text-lg">
+                          {e.venue.address}
+                        </span>
+                      </p>
+                    )}
+                    {e.note && <p className="ev-text mt-3 text-base italic sm:text-lg">{e.note}</p>}
+
+                    {map && e.venue && (
+                      <div className="mt-6 flex flex-wrap gap-3">
+                        <a href={map} target="_blank" rel="noopener noreferrer" className="btn btn-fill">
+                          View on map
+                        </a>
+                        <AddToCalendar
+                          id={e.id}
+                          title={e.title}
+                          start={e.start}
+                          end={e.end}
+                          location={`${e.venue.name}, ${e.venue.address}`}
+                          className="btn btn-outline"
+                        />
+                      </div>
+                    )}
+                  </Reveal>
+                </div>
+              </article>
             );
           })}
         </div>
       </section>
 
-      {/* ───────── RSVP + footer (navy) ───────── */}
-      <section className="sec sec-dark curve px-5 pb-16 pt-24 text-center">
-        <Reveal from="zoom" className="mx-auto max-w-xl">
-          <p className="font-script gold-text text-5xl sm:text-6xl">We look forward to you</p>
+      {/* ───────── RSVP + footer (maroon) ───────── */}
+      <section id="rsvp" className="sec sec-dark curve px-5 pb-16 pt-24 text-center">
+        <Reveal from="zoom" className="mx-auto max-w-2xl">
+          <h2 className="font-script gold-text text-5xl sm:text-7xl">We look forward to you</h2>
           <p className="mx-auto mt-5 max-w-md text-lg italic text-ivory/80">
             Your presence and duas will make our celebration complete.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <div className="mt-9 flex flex-wrap justify-center gap-3">
             {couple.phones.map((p) => (
-              <a key={p} href={`tel:+91${p}`} className="btn-ghost">
+              <a key={p} href={`tel:+91${p}`} className="btn btn-outline">
                 Call {p}
               </a>
             ))}
-            <a
-              href={`https://wa.me/91${couple.phones[0]}?text=${encodeURIComponent(
-                "Assalamualaikum! We will, insha'Allah, attend the wedding of Aliya & Mustafa.",
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-gold"
-            >
-              RSVP on WhatsApp
-            </a>
           </div>
         </Reveal>
 

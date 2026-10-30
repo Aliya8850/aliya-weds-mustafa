@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Amiri, Cinzel, Cormorant_Garamond, Playfair_Display } from "next/font/google";
+import { Amiri, Bodoni_Moda, Cinzel, Cormorant_Garamond, Lora } from "next/font/google";
 import "./globals.css";
 
 const cinzel = Cinzel({ variable: "--font-cinzel", subsets: ["latin"] });
@@ -9,11 +9,15 @@ const cormorant = Cormorant_Garamond({
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
 });
-const script = Playfair_Display({
-  variable: "--font-script",
+const bodoni = Bodoni_Moda({
+  variable: "--font-bodoni",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["italic"],
+  style: ["italic", "normal"],
+});
+const lora = Lora({
+  variable: "--font-lora",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
 });
 const amiri = Amiri({
   variable: "--font-arabic",
@@ -33,18 +37,18 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#02150f",
+  themeColor: "#14040a",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${cinzel.variable} ${cormorant.variable} ${script.variable} ${amiri.variable}`}
+      className={`${cinzel.variable} ${cormorant.variable} ${bodoni.variable} ${lora.variable} ${amiri.variable}`}
     >
       <body>
         <noscript>
-          <style>{`.gate{display:none!important}.reveal{opacity:1!important;transform:none!important}.hero-anim{animation:none!important;opacity:1!important}`}</style>
+          <style>{`.gate{display:none!important}.reveal,.sw{opacity:1!important;transform:none!important}.hero-anim,.letter{animation:none!important;opacity:1!important}`}</style>
         </noscript>
         {children}
       </body>

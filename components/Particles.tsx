@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 type Particle = {
-  kind: "dust" | "confetti" | "petal";
+  kind: "dust" | "confetti" | "petal" | "spark";
   x: number;
   y: number;
   vx: number;
@@ -16,11 +16,14 @@ type Particle = {
   color: string;
 };
 
-const GOLDS = ["#f0d98a", "#c9a24b", "#fff3c4", "#e0b84f"];
-const CONFETTI = [...GOLDS, "#fbf2dc", "#e8a6a1", "#3b4fa8"];
-const PETALS = ["#e8a6a1", "#f4c6c0", "#d9b45b", "#fbf2dc"];
+const GOLDS = ["#f4e1ae", "#d6b26a", "#fff4cf", "#e6c06a"];
+// soft, pale tones: the hearts should read as delicate and faded, never bold
+const HEARTS = ["#e8a6a1", "#f4c6c0", "#f0b8c4", "#d6b26a", "#fbf3e4"];
 
-/** Ambient gold dust, plus a confetti/petal burst when the invite is opened. */
+/**
+ * Ambient gold dust; a confetti/petal burst when the invite is opened; and
+ * gold sparkles wherever the guest taps (plus a faint trail behind the mouse).
+ */
 export default function Particles() {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -44,6 +47,15 @@ export default function Particles() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
+    // small heart centred on the origin; s is roughly the half-width
+    const heart = (s: number) => {
+      ctx.beginPath();
+      ctx.moveTo(0, s * 0.9);
+      ctx.bezierCurveTo(-s * 1.3, s * 0.1, -s * 0.9, -s * 0.9, 0, -s * 0.35);
+      ctx.bezierCurveTo(s * 0.9, -s * 0.9, s * 1.3, s * 0.1, 0, s * 0.9);
+      ctx.closePath();
+    };
+
     const rnd = (a: number, b: number) => a + Math.random() * (b - a);
     const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -61,9 +73,30 @@ export default function Particles() {
       color: pick(GOLDS),
     });
 
+    const sparkle = (x: number, y: number, n: number) => {
+      if (reduce) return;
+      for (let i = 0; i < n; i++) {
+        const a = rnd(0, Math.PI * 2);
+        const s = rnd(1, 3.8);
+        particles.push({
+          kind: "spark",
+          x,
+          y,
+          vx: Math.cos(a) * s,
+          vy: Math.sin(a) * s - 0.6,
+          r: rnd(1.2, 2.8),
+          angle: 0,
+          spin: 0,
+          phase: 0,
+          life: rnd(26, 48),
+          color: pick(HEARTS),
+        });
+      }
+    };
+
     const burst = () => {
       if (reduce) return;
-      for (let i = 0; i < 170; i++) {
+      for (let i = 0; i < 70; i++) {
         const a = rnd(-Math.PI, 0);
         const s = rnd(6, 17);
         particles.push({
@@ -72,27 +105,27 @@ export default function Particles() {
           y: h * 0.55,
           vx: Math.cos(a) * s,
           vy: Math.sin(a) * s,
-          r: rnd(3, 7),
-          angle: rnd(0, 6),
-          spin: rnd(-0.3, 0.3),
+          r: rnd(3.5, 7),
+          angle: rnd(-0.4, 0.4),
+          spin: rnd(-0.03, 0.03),
           phase: rnd(0, 6),
           life: rnd(110, 200),
-          color: pick(CONFETTI),
+          color: pick(HEARTS),
         });
       }
-      for (let i = 0; i < 45; i++) {
+      for (let i = 0; i < 28; i++) {
         particles.push({
           kind: "petal",
           x: rnd(0, w),
           y: rnd(-h * 0.6, -10),
           vx: rnd(-0.4, 0.4),
           vy: rnd(0.8, 1.8),
-          r: rnd(5, 10),
-          angle: rnd(0, 6),
-          spin: rnd(-0.03, 0.03),
+          r: rnd(4, 8),
+          angle: rnd(-0.4, 0.4),
+          spin: rnd(-0.015, 0.015),
           phase: rnd(0, 6),
           life: 700,
-          color: pick(PETALS),
+          color: pick(HEARTS),
         });
       }
     };
@@ -100,6 +133,16 @@ export default function Particles() {
     const count = Math.min(40, Math.round(window.innerWidth / 30));
     resize();
     if (!reduce) for (let i = 0; i < count; i++) particles.push(dust(true));
+
+    let lastTrail = 0;
+    const onDown = (e: PointerEvent) => sparkle(e.clientX, e.clientY, 16);
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      const now = performance.now();
+      if (now - lastTrail < 45) return;
+      lastTrail = now;
+      sparkle(e.clientX, e.clientY, 1);
+    };
 
     let t = 0;
     const frame = () => {
@@ -126,12 +169,29 @@ export default function Particles() {
           continue;
         }
 
+        if (p.kind === "spark") {
+          p.life -= 1;
+          p.vy += 0.04;
+          if (p.life <= 0) {
+            particles.splice(i, 1);
+            continue;
+          }
+          ctx.globalAlpha = Math.min(0.55, p.life / 50);
+          ctx.fillStyle = p.color;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          heart(p.r * 1.7);
+          ctx.fill();
+          ctx.restore();
+          continue;
+        }
+
         p.life -= 1;
         p.angle += p.spin;
         if (p.kind === "confetti") {
-          p.vy += 0.28;
-          p.vx *= 0.985;
-          p.vy *= 0.985;
+          p.vy += 0.16;
+          p.vx *= 0.975;
+          p.vy *= 0.975;
         } else {
           p.x += Math.sin(t * 0.03 + p.phase) * 0.7;
         }
@@ -139,19 +199,13 @@ export default function Particles() {
           particles.splice(i, 1);
           continue;
         }
-        ctx.globalAlpha = Math.min(1, p.life / 40);
+        ctx.globalAlpha = Math.min(0.55, p.life / 60);
         ctx.fillStyle = p.color;
         ctx.save();
         ctx.translate(p.x, p.y);
-        ctx.rotate(p.angle);
-        if (p.kind === "confetti") {
-          ctx.scale(1, Math.abs(Math.cos(p.phase + t * 0.15)) + 0.15);
-          ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.6);
-        } else {
-          ctx.beginPath();
-          ctx.ellipse(0, 0, p.r, p.r * 0.55, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        ctx.rotate(p.angle + Math.sin(t * 0.04 + p.phase) * 0.25);
+        heart(p.r);
+        ctx.fill();
         ctx.restore();
       }
       ctx.globalAlpha = 1;
@@ -160,10 +214,14 @@ export default function Particles() {
     raf = requestAnimationFrame(frame);
     window.addEventListener("resize", resize);
     window.addEventListener("invite:burst", burst);
+    window.addEventListener("pointerdown", onDown, { passive: true });
+    window.addEventListener("pointermove", onMove, { passive: true });
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
       window.removeEventListener("invite:burst", burst);
+      window.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointermove", onMove);
     };
   }, []);
 
