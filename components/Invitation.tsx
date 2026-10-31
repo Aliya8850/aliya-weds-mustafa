@@ -298,7 +298,7 @@ export default function Invitation({ variant }: { variant: Variant }) {
           <p className="font-display gold-text mt-3 text-xl uppercase tracking-[0.15em] sm:text-2xl">
             {couple.compliments}
           </p>
-          <p className="font-arabic mt-10 text-2xl text-gold-light" dir="rtl" lang="ar">
+          <p className="font-arabic mt-10 whitespace-nowrap text-[clamp(1rem,4.6vw,1.75rem)] leading-[1.9] text-gold-light" dir="rtl" lang="ar">
             بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ
           </p>
           <p className="mt-2 text-sm italic text-ivory/60">
