@@ -489,9 +489,17 @@ body:has(.gate:not(.open)) {
     transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
     filter 0.45s ease;
 }
-.hl:hover {
-  transform: translateY(-0.09em) rotate(-4deg) scale(1.06);
-  filter: drop-shadow(0 0 18px rgba(244, 225, 174, 0.55));
+/* only for a real mouse: on touch screens a tap leaves :hover stuck on */
+@media (hover: hover) and (pointer: fine) {
+  .hl:hover {
+    transform: translateY(-0.09em) rotate(-4deg) scale(1.06);
+    filter: drop-shadow(0 0 18px rgba(244, 225, 174, 0.55));
+  }
+}
+.name {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .letter {
   display: inline-block;
