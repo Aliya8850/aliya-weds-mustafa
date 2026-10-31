@@ -122,7 +122,7 @@ export default function Invitation({ variant }: { variant: Variant }) {
         <div className="mx-auto max-w-4xl px-2 sm:px-8">
           <Reveal from="zoom">
             <p
-              className="font-arabic glow-pulse text-5xl leading-[1.9] text-gold-deep sm:text-6xl"
+              className="font-arabic glow-pulse whitespace-nowrap text-[clamp(1.7rem,7.4vw,3.75rem)] leading-[1.9] text-gold-deep"
               dir="rtl"
               lang="ar"
             >
@@ -132,7 +132,7 @@ export default function Invitation({ variant }: { variant: Variant }) {
 
           <ScrollText
             text={couple.blessing}
-            className="font-script mx-auto mt-8 max-w-3xl text-balance text-[1.8rem] leading-snug text-wine sm:text-[2.6rem] sm:leading-snug"
+            className="font-script mx-auto mt-8 max-w-3xl text-balance text-[1.45rem] leading-snug text-wine sm:text-[2.6rem] sm:leading-snug"
           />
 
           <Divider className="my-16" />
